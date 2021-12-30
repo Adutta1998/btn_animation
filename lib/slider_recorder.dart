@@ -14,7 +14,6 @@ class SliderRecorder extends StatefulWidget {
 class _SliderRecorderState extends State<SliderRecorder> {
   Offset position = Offset(0, 0);
   Offset currentPosition = Offset(0, 0);
-  Offset previousPosition = Offset(0, 0);
   bool isDragging = false;
   bool showRecordingGif = false;
   @override
@@ -63,10 +62,9 @@ class _SliderRecorderState extends State<SliderRecorder> {
                           Offset(width - 48 - (widget.paddingHorizontal * 2), 0)
                       : position = Offset(0, 0);
                   currentPosition = position;
+                  showRecordingGif = (d.offset.dx > width / 3);
                 });
-                showRecordingGif = true;
                 print("dragend");
-                previousPosition = d.offset;
               },
               child: FloatingActionButton.small(
                 onPressed: () => _onTap(key),
