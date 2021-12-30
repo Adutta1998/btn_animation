@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class SliderRecorder extends StatefulWidget {
   final double paddingHorizontal;
+  final Color trackColor;
+  final Color trackColorOnDrag;
+  final Color buttonColor;
+  final Color buttonColorOnDrag;
+  final Color buttonColorOnDragEnd;
+  final Icon dragEndIcon;
+  final Icon dragStartIcon;
+  final void Function()? onTap;
+  final void Function()? onDragStart;
+  final void Function()? onDragEnd;
+  final void Function()? onTapAtEnd;
+
   const SliderRecorder({
     Key? key,
+    this.onTap,
+    this.onTapAtEnd,
+    this.onDragStart,
+    this.onDragEnd,
     required this.paddingHorizontal,
+    this.trackColor = Colors.grey,
+    this.trackColorOnDrag = Colors.green,
+    this.buttonColor = Colors.blue,
+    this.buttonColorOnDrag = Colors.green,
+    this.buttonColorOnDragEnd = Colors.blue,
+    required this.dragEndIcon,
+    required this.dragStartIcon,
   }) : super(key: key);
 
   @override
@@ -32,7 +56,26 @@ class _SliderRecorderState extends State<SliderRecorder> {
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              color: isDragging ? Colors.pink[100] : Colors.white,
+              color: showRecordingGif
+                  ? widget.trackColorOnDrag
+                  : widget.trackColor,
+            ),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade700,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 48),
+                child: isDragging
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.chevron_right_rounded),
+                          Icon(Icons.chevron_right_rounded),
+                          Icon(Icons.chevron_right_rounded),
+                        ],
+                      )
+                    : Container(),
+              ),
             ),
           ),
           AnimatedPositioned(
@@ -48,12 +91,14 @@ class _SliderRecorderState extends State<SliderRecorder> {
                     position = Offset(0, 0);
                     currentPosition = position;
                     showRecordingGif = false;
+                    isDragging = false;
                   });
                 } else if (d.offset.dx > width) {
                   setState(() {
                     position = Offset(width - 0, 0);
                     currentPosition = position;
                     showRecordingGif = false;
+                    isDragging = false;
                   });
                 }
                 setState(() {
@@ -63,23 +108,27 @@ class _SliderRecorderState extends State<SliderRecorder> {
                       : position = Offset(0, 0);
                   currentPosition = position;
                   showRecordingGif = (d.offset.dx > width / 3);
+                  isDragging = false;
                 });
                 print("dragend");
               },
               child: FloatingActionButton.small(
-                onPressed: () => _onTap(key),
-                child: Icon(showRecordingGif ? Icons.stop : Icons.mic),
-                backgroundColor:
-                    showRecordingGif ? Colors.red : Colors.purple.shade300,
+                onPressed: () => widget.onTap?.call(),
+                child: showRecordingGif
+                    ? widget.dragEndIcon
+                    : widget.dragStartIcon,
+                backgroundColor: showRecordingGif
+                    ? widget.buttonColorOnDragEnd
+                    : widget.buttonColor,
               ),
               feedback: FloatingActionButton.small(
                 onPressed: () {},
-                backgroundColor: Colors.pink,
+                backgroundColor: widget.buttonColorOnDrag,
                 child: Icon(Icons.chevron_right_rounded),
               ),
               childWhenDragging: FloatingActionButton.small(
                 onPressed: () {},
-                backgroundColor: Colors.red,
+                backgroundColor: widget.buttonColorOnDrag,
               ),
             ),
           ),
@@ -97,16 +146,5 @@ class _SliderRecorderState extends State<SliderRecorder> {
         ],
       ),
     );
-  }
-
-  void _onTap(GlobalKey key) {
-    final dynamic tooltip = key.currentState;
-    tooltip?.ensureTooltipVisible();
-    setState(() {
-      position = Offset(0, 0);
-      isDragging = false;
-      currentPosition = position;
-      showRecordingGif = false;
-    });
   }
 }

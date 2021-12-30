@@ -12,7 +12,10 @@ class HomePage extends StatelessWidget {
         title: Text('HomePAge'),
       ),
       body: SliderRecorder(
+        dragStartIcon: Icon(Icons.mic),
+        dragEndIcon: Icon(Icons.pedal_bike),
         paddingHorizontal: 8,
+        trackColor: Colors.grey.shade100,
       ),
     );
   }
